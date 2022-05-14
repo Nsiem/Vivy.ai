@@ -1,6 +1,6 @@
 const { Client, Intents, BaseGuild, BaseGuildVoiceChannel } = require('discord.js');
 const myIntents = new Intents();
-myIntents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES );
+myIntents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES);
 const client = new Client({ intents: myIntents });
 var wavConverter = require('wav-converter');
 const dotenv = require('dotenv')
@@ -11,7 +11,7 @@ const fs = require('fs')
 var flag = true
 
 client.once('ready', () => {
-	console.log('Ready!');
+    console.log('Ready!');
 });
 
 const upload = axios.create({
@@ -23,7 +23,8 @@ const upload = axios.create({
     },
 });
 
-const assembly = axios.create({ baseURL: "https://api.assemblyai.com/v2",
+const assembly = axios.create({
+    baseURL: "https://api.assemblyai.com/v2",
     headers: {
         authorization: `${process.env.ASSEMBLYAPIKEY}`,
         "content-type": "application/json",
@@ -39,39 +40,39 @@ client.on('message', async message => {
 
 function uploadfunc(data, msg) {
     upload
-    .post("/upload", data)
-    .then((res) =>  {
-        assemblyAIfunc(res.data["upload_url"], msg)
-    })
-    .catch((err) => console.error(err))
+        .post("/upload", data)
+        .then((res) => {
+            assemblyAIfunc(res.data["upload_url"], msg)
+        })
+        .catch((err) => console.error(err))
 }
 
 function assemblyAIfunc(uploadID, msg) {
     assembly
-    .post("/transcript", {
-        audio_url: `${uploadID}`
-    })
-    .then((res) => {
-        GETloop(res.data["id"], msg)
-    }) 
-    .catch((err) => console.error(err));
+        .post("/transcript", {
+            audio_url: `${uploadID}`
+        })
+        .then((res) => {
+            GETloop(res.data["id"], msg)
+        })
+        .catch((err) => console.error(err));
 }
 
 function gettranscript(transcriptID, msg) {
     assembly
-    .get(`/transcript/${transcriptID}`)
-    .then((res) => {
-        if(res.data["text"] != null) {
-            if(flag != false) {
-                console.log(`${res.data["text"]}`)
-                msg.channel.send(`${res.data["text"]}`)
+        .get(`/transcript/${transcriptID}`)
+        .then((res) => {
+            if (res.data["text"] != null) {
+                if (flag != false) {
+                    console.log(`${res.data["text"]}`)
+                    msg.channel.send(`${res.data["text"]}`)
+                }
+                flag = false
             }
-            flag = false
-        }
-        
 
-    })
-    .catch((err) => console.error(err));
+
+        })
+        .catch((err) => console.error(err));
 }
 
 function GETloop(transcriptID, msg) {
@@ -84,17 +85,17 @@ function GETloop(transcriptID, msg) {
         return
     } else {
         setTimeout(() => {
-        GETloop(transcriptID, msg)
-    }, 2000)
+            GETloop(transcriptID, msg)
+        }, 2000)
     }
 }
-async function listen (message) {
-    var connection =  await message.member.voice.channel.join();
-    if(message.guild.voice.channel){
+async function listen(message) {
+    var connection = await message.member.voice.channel.join();
+    if (message.guild.voice.channel) {
 
 
         var user = message.member;
-        
+
         message.channel.send("I'm listening...");
         setTimeout(() => {
 
@@ -102,7 +103,7 @@ async function listen (message) {
 
         const audio = connection.receiver.createStream(user, { mode: 'pcm', end: 'silence' });
         const writer = audio.pipe(fs.createWriteStream('./audioclip/user_audio_clip.pcm'));
-    
+
         writer.on("finish", () => {
             console.log("done")
             var pcmData = fs.readFileSync('./audioclip/user_audio_clip.pcm');
@@ -118,9 +119,7 @@ async function listen (message) {
             })
         })
     }
-    else{
+    else {
         message.channel.send("You must be in a voice channel!");
     }
 }
-
-client.login(process.env.TOKEN)
