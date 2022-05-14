@@ -6,7 +6,7 @@ var wavConverter = require('wav-converter');
 const dotenv = require('dotenv')
 dotenv.config()
 
-//const upload = require('./AImethods/assemblyUpload')
+const transcribe = require('./AImethods/audiototext')
 const axios = require('axios')
 const fs = require('fs')
 
@@ -55,7 +55,7 @@ async function listen (message) {
             
                 assembly
                     .post("/upload", data)
-                    .then((res) => console.log(res.data))
+                    .then((res) =>  transcribe.transcribeAudio(res.data["upload_url"]))
                     .catch((err) => console.error(err))
             })
         })
