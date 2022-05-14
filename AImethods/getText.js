@@ -11,9 +11,13 @@ const assembly = axios.create({
         "content-type": "application/json",
     },
 });
-const transcriptID = 'o0k7twxj1t-5afc-4d27-8f81-6448419cac79'
+//const transcriptID = 'o0k3jms050-0940-4166-923b-91a6c7a2b259'
 
-assembly
+function getText(transcriptID) {
+    assembly
     .get(`/transcript/${transcriptID}`)
-    .then((res) => console.log(res.data))
+    .then((res) => {return res.data})
     .catch((err) => console.error(err));
+}
+
+module.exports = {getText}
