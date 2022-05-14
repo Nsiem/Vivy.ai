@@ -1,4 +1,5 @@
 const { Client, Intents, BaseGuild, BaseGuildVoiceChannel } = require('discord.js');
+const {AudioPlayerStatus, joinVoiceChannel, createAudioPlayer, createAudioResource} = require('@discordjs/voice')
 const { Configuration, OpenAIApi } = require("openai");
 const myIntents = new Intents();
 myIntents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES );
@@ -119,8 +120,20 @@ function Vivy(msg) {
             tts.quickStart(response.data["choices"][0]["text"].substring(3))
             updateChatlog("ai", response.data["choices"][0]["text"])
             msg.channel.send(response.data["choices"][0]["text"])
+            setTimeout(() => {
+                VivySpeak(msg)
+            }, 1500)
+            
       })
 }
+
+async function VivySpeak(msg) {
+    const voiceChannel = msg.member.voice.channel
+
+    const connection = await voiceChannel.join();
+	connection.play('output.mp3');
+}
+
 
 
 
@@ -128,6 +141,9 @@ function Vivy(msg) {
 client.on('message', async message => {
     if (message.content == "!start") {
         listen(message)
+        return
+    } else if (message.content == "!test") {
+        VivySpeak(message)
         return
     }
 })
