@@ -4,6 +4,8 @@ const dotenv = require('dotenv')
 dotenv.config({path: '../.env'})
 //process.env.ASSEMBLYAPIKEY
 
+
+
 const assembly = axios.create({ baseURL: "https://api.assemblyai.com/v2",
     headers: {
         authorization: `${process.env.ASSEMBLYAPIKEY}`,
@@ -11,7 +13,7 @@ const assembly = axios.create({ baseURL: "https://api.assemblyai.com/v2",
     },
 });
 
-const audioURL = 'https://cdn.assemblyai.com/upload/eec4e566-07de-4211-a181-13406d499b9d'
+const audioURL = 'https://cdn.assemblyai.com/upload/2977798d-f84c-4418-8d98-0edb2c15778c'
 
 assembly
     .post("/transcript", {

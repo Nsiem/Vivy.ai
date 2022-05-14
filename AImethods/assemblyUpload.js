@@ -13,7 +13,7 @@ const assembly = axios.create({
         "transfer-encoding": "chunked",
     },
 });
-const file = "../audioclip/user_audio_clip.pcm";
+const file = "../audioclip/user_audio_clip.wav";
 fs.readFile(file, (err, data) => {
     if (err) return console.error(err);
 
@@ -23,3 +23,4 @@ fs.readFile(file, (err, data) => {
         .catch((err) => console.error(err))
 })
 
+module.exports = {assembly}
