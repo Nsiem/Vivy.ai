@@ -7,7 +7,7 @@ var wavConverter = require('wav-converter');
 const dotenv = require('dotenv')
 dotenv.config()
 
-const getcompletion = require('./temp.js')
+const tts = require('./tts.js')
 const axios = require('axios')
 const fs = require('fs')
 var flag = true
@@ -69,7 +69,7 @@ function gettranscript(transcriptID, msg) {
         if(res.data["text"] != null) {
             if(flag != false) {
                 console.log(`${res.data["text"]}`)
-                msg.channel.send(`${res.data["text"]}`)
+                msg.channel.send(`Human: ${res.data["text"]}`)
                 updateChatlog("human", res.data["text"])
                 Vivy(msg)
             }
@@ -116,8 +116,9 @@ function Vivy(msg) {
         presence_penalty: 0.6,
         stop: [" Human:", " AI:"],
       }).then((response) => {
-          updateChatlog("ai", response.data["choices"][0]["text"])
-          msg.channel.send(response.data["choices"][0]["text"])
+            tts.quickStart(response.data["choices"][0]["text"].substring(3))
+            updateChatlog("ai", response.data["choices"][0]["text"])
+            msg.channel.send(response.data["choices"][0]["text"])
       })
 }
 
