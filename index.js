@@ -8,6 +8,7 @@ dotenv.config()
 
 const axios = require('axios')
 const fs = require('fs')
+var flag = true
 
 client.once('ready', () => {
 	console.log('Ready!');
@@ -51,9 +52,7 @@ function assemblyAIfunc(uploadID, msg) {
         audio_url: `${uploadID}`
     })
     .then((res) => {
-        setTimeout(() => {
-            gettranscript(res.data["id"], msg)
-        }, 15000)
+        GETloop(res.data["id"], msg)
     }) 
     .catch((err) => console.error(err));
 }
@@ -62,13 +61,33 @@ function gettranscript(transcriptID, msg) {
     assembly
     .get(`/transcript/${transcriptID}`)
     .then((res) => {
-        console.log(res.data)
-        msg.channel.send(`${res.data["text"]}`)
+        if(res.data["text"] != null) {
+            if(flag != false) {
+                console.log(`${res.data["text"]}`)
+                msg.channel.send(`${res.data["text"]}`)
+            }
+            flag = false
+        }
+        
+
     })
     .catch((err) => console.error(err));
 }
 
-
+function GETloop(transcriptID, msg) {
+    gettranscript(transcriptID, msg)
+    console.log(flag)
+    if (flag == false) {
+        setTimeout(() => {
+            flag = true
+        }, 500)
+        return
+    } else {
+        setTimeout(() => {
+        GETloop(transcriptID, msg)
+    }, 2000)
+    }
+}
 async function listen (message) {
     var connection =  await message.member.voice.channel.join();
     if(message.guild.voice.channel){
