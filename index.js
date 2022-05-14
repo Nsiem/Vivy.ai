@@ -1,4 +1,5 @@
 const { Client, Intents, BaseGuild, BaseGuildVoiceChannel } = require('discord.js');
+const {AudioPlayerStatus, joinVoiceChannel, createAudioPlayer, createAudioResource} = require('@discordjs/voice')
 const { Configuration, OpenAIApi } = require("openai");
 const myIntents = new Intents();
 myIntents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES );
@@ -7,7 +8,7 @@ var wavConverter = require('wav-converter');
 const dotenv = require('dotenv')
 dotenv.config()
 
-const getcompletion = require('./temp.js')
+const tts = require('./tts.js')
 const axios = require('axios')
 const fs = require('fs')
 var flag = true
@@ -69,7 +70,7 @@ function gettranscript(transcriptID, msg) {
         if(res.data["text"] != null) {
             if(flag != false) {
                 console.log(`${res.data["text"]}`)
-                msg.channel.send(`${res.data["text"]}`)
+                msg.channel.send(`Human: ${res.data["text"]}`)
                 updateChatlog("human", res.data["text"])
                 Vivy(msg)
             }
@@ -116,10 +117,23 @@ function Vivy(msg) {
         presence_penalty: 0.6,
         stop: [" Human:", " AI:"],
       }).then((response) => {
-          updateChatlog("ai", response.data["choices"][0]["text"])
-          msg.channel.send(response.data["choices"][0]["text"])
+            tts.quickStart(response.data["choices"][0]["text"].substring(3))
+            updateChatlog("ai", response.data["choices"][0]["text"])
+            msg.channel.send(response.data["choices"][0]["text"])
+            setTimeout(() => {
+                VivySpeak(msg)
+            }, 1500)
+            
       })
 }
+
+async function VivySpeak(msg) {
+    const voiceChannel = msg.member.voice.channel
+
+    const connection = await voiceChannel.join();
+	connection.play('output.mp3');
+}
+
 
 
 
@@ -127,6 +141,9 @@ function Vivy(msg) {
 client.on('message', async message => {
     if (message.content == "!start") {
         listen(message)
+        return
+    } else if (message.content == "!test") {
+        VivySpeak(message)
         return
     }
 })
