@@ -5,33 +5,36 @@ const client = new Client({ intents: myIntents });
 const dotenv = require('dotenv')
 dotenv.config()
 
-//const {AudioPlayerStatus, joinVoiceChannel, createAudioPlayer, createAudioResource, VoiceReceiver, VoiceConnection} = require('@discordjs/voice')
 const fs = require('fs')
-const { DartVoiceManager } = require('dartjs')
-const voiceManager = new DartVoiceManager(client)
 
 client.once('ready', () => {
 	console.log('Ready!');
 });
 
-client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
-
-	const { commandName } = interaction;
-
-	if (commandName === 'play') {
-        voiceManager.join(interaction.member.voice.channelId).then(connection => {
-            const receiver = connection.receiver.createStream(interaction.member, {
-                mode: "mp3",
-                end: "silence"
-            })
-             const audiowriter = receiver.pipe(fs.createWriteStream('user_audio.mp3'))
-
-            audiowriter.on("finish", () => {
-                console.log("Done!")
-            })
-        })
+client.on('message', async message => {
+    if (message.content == "!start") {
+        listen(message)
+        return
     }
-});
+})
+
+
+async function listen (message) {
+    var connection =  await message.member.voice.channel.join();
+    if(message.guild.voice.channel){
+        var user = message.member;
+        
+        message.channel.send("I'm listening...");
+        const audio = connection.receiver.createStream(user, { mode: 'pcm', end: 'silence' });
+        const writer = audio.pipe(fs.createWriteStream('./audioclip/user_audio_clip.pcm'));
+    
+        writer.on("finish", () => {
+            console.log("done")
+        });
+    }
+    else{
+        message.channel.send("You must be in a voice channel!");
+    }
+}
 
 client.login(process.env.TOKEN)
