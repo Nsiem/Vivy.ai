@@ -13,7 +13,7 @@ dotenv.config()
 const tts = require('./tts.js')
 const axios = require('axios')
 const fs = require('fs')
-var retryCount = 50
+var retryCount = 30
 var chatlog = "The following is a conversation with an AI named Vivy. The AI is interesting, creative, clever, intelligent, friendly, is a singer and likes to talk.\n\nHuman: Hello, who are you?\nAI: Hi I'm an AI named Vivy!\n"
 const configuration = new Configuration({apiKey: process.env.OPENAI_API_KEY})
 const openai = new OpenAIApi(configuration)
@@ -78,12 +78,12 @@ function gettranscript(transcriptID, msg) {
             msg.channel.send("```" + `arm\n${msg.author.username}: ` + `${res.data["text"]}` + "```")
             updateChatlog("human", res.data["text"])
             Vivy(msg)
-            retryCount = 50
+            retryCount = 30
         } else {
             if(retryCount <= 0) {
                 msg.channel.send("*Vivy didn't catch that*")
                 setTimeout(() => {
-                    retryCount = 50
+                    retryCount = 30
                     listen(msg)
                 }, 1500)
             } else {
