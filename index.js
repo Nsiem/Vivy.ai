@@ -12,8 +12,8 @@ dotenv.config()
 const tts = require('./tts.js')
 const axios = require('axios')
 const fs = require('fs')
-var flag = true
-var chatlog = "The following is a conversation with an AI named Vivy. The AI is interesting, creative, clever, intelligent, and very friendly.\n\nHuman: Hello, who are you?\nAI: Hi I'm an AI named Vivy!\n"
+var retryCount = 12
+var chatlog = "The following is a conversation with an AI named Vivy. The AI is interesting, creative, clever, intelligent, friendly, and MOST IMPORTANTLY loves to sing for people.\n\nHuman: Hello, who are you?\nAI: Hi I'm an AI named Vivy!\n"
 
 const configuration = new Configuration({apiKey: process.env.OPENAI_API_KEY})
 const openai = new OpenAIApi(configuration)
@@ -69,21 +69,31 @@ function gettranscript(transcriptID, msg) {
     .get(`/transcript/${transcriptID}`)
     .then((res) => {
         if(res.data["text"] != null) {
-            console.log(`${res.data["text"]}`)
             if(res.data["text"] == "good bye." || res.data["text"] == "Good bye." || res.data["text"] == "goodbye." || res.data["text"] == "Goodbye.") {
-                msg.channel.send(`Vivy: It was nice to talk to you, goodbye!`)
+                msg.channel.send('```ini\n[Vivy]: It was nice to talk to you, goodbye!```')
                 VivySpeak(msg, true)
-                flag = false
+                msg.channel.stopTyping()
                 return
             }
-            msg.channel.send(`Human: ${res.data["text"]}`)
+            msg.channel.send("```" + `arm\n${msg.author.username}: ` + `${res.data["text"]}` + "```")
             updateChatlog("human", res.data["text"])
             Vivy(msg)
+            retryCount = 10
         } else {
-            setTimeout(() => {
+            if(retryCount <= 0) {
+                msg.channel.send("*Vivy didn't catch that*")
+                setTimeout(() => {
+                    retryCount = 10
+                    listen(msg)
+                }, 1500)
+            } else {
+               setTimeout(() => {
                 console.log("Retrying GET")
+                retryCount -= 1
                 gettranscript(transcriptID, msg)
-            }, 2000)
+            }, 2000) 
+            }
+            
         }
 
         
@@ -98,7 +108,6 @@ function updateChatlog(src, text) {
     } else if (src == "ai") {
         chatlog += text.replace(/\n/g, '') + '\n'
     }
-    console.log(chatlog)
 }
 
 //sends prompt to vivy and receives her response
@@ -114,7 +123,7 @@ function Vivy(msg) {
       }).then((response) => {
             tts.quickStart(response.data["choices"][0]["text"].substring(3))
             updateChatlog("ai", response.data["choices"][0]["text"])
-            msg.channel.send("Vivy: " + response.data["choices"][0]["text"].substring(3))
+            msg.channel.send("```ini\n[Vivy] " + response.data["choices"][0]["text"].substring(3) + "```")
             setTimeout(() => {
                 VivySpeak(msg, false)
             }, 1500)
@@ -124,6 +133,7 @@ function Vivy(msg) {
 
 //gives Vivy a voice!
 async function VivySpeak(msg, goodbye) {
+    msg.channel.stopTyping()
 
     const voiceChannel = msg.member.voice.channel
 
@@ -169,19 +179,20 @@ client.on('message', async message => {
 
 //Main listen function, starts listening to discord voice
 async function listen (message) {
-    var connection =  await message.member.voice.channel.join();
+    var connection =  await message.member.voice.channel.join()
     if(message.guild.voice.channel){
-        message.channel.send("(Your turn to speak)");
+        const yourturn = await message.channel.send("**(Your turn to speak)**")
 
-        var user = message.member;
+        var user = message.member
         
-        const audioConnection = connection.receiver.createStream(user, { mode: 'pcm', end: 'silence' });
-        const audioWriter = audioConnection.pipe(fs.createWriteStream('./audioclip/user_audio_clip.pcm'));
+        const audioConnection = connection.receiver.createStream(user, { mode: 'pcm', end: 'silence' })
+        const audioWriter = audioConnection.pipe(fs.createWriteStream('./audioclip/user_audio_clip.pcm'))
     
         audioWriter.on("finish", () => {
             console.log("done")
-            message.channel.send("Vivy is thinking...")
-            var pcmAudio = fs.readFileSync('./audioclip/user_audio_clip.pcm');
+            message.channel.startTyping()
+            yourturn.delete({timeout: 700})
+            var pcmAudio = fs.readFileSync('./audioclip/user_audio_clip.pcm')
             var wavAudio = wavConverter.encodeWav(pcmAudio, {
                 numChannels: 1,
                 sampleRate: 100000,
@@ -189,13 +200,14 @@ async function listen (message) {
             });
             fs.writeFileSync('./audioclip/user_audio_clip.wav', wavAudio)
             fs.readFile('./audioclip/user_audio_clip.wav', (err, data) => {
-                if (err) return console.error(err);
+                if (err) return console.error(err)
                 uploadfunc(data, message)
+                
             })
         })
     }
     else{
-        message.channel.send("You must be in a voice channel!");
+        message.channel.send("You must be in a voice channel!")
     }
 }
 
