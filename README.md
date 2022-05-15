@@ -15,10 +15,10 @@ We've always loved AI, and GPT-3 was an AI algorithm we've wanted to utilize for
 - Vivy then verbally responds to anything the user says.
 - The conversation is transcribed in a text-channel so you will never forgot!
 ## How we built it
-- First we set up a basic discord bot to retreive audio that converts 
+- First we set up a basic discord bot to retreive audio into .wav format 
 - We then send the wavfile data to Assemblyai and then wait for it to be processed, retreiveing the speech-to-text
 - Then we sent the text to gpt3, including our prompts, to generate a contextual response
-- Finally we used utilized Google's text to speech to generate along with GPT3 repspone to create an MP3 file to play back to the user on discord .
+- Finally we used utilized Google's text to speech along with GPT3's response to create an MP3 file to play back to the user on discord
 
 
 ## Challenges we ran into'
