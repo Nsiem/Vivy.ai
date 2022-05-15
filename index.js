@@ -14,8 +14,7 @@ const tts = require('./tts.js')
 const axios = require('axios')
 const fs = require('fs')
 var retryCount = 50
-var chatlog = "The following is a conversation with an AI named Vivy. The AI is interesting, creative, clever, intelligent, friendly, and MOST IMPORTANTLY loves to sing for people.\n\nHuman: Hello, who are you?\nAI: Hi I'm an AI named Vivy!\n"
-
+var chatlog = "The following is a conversation with an AI named Vivy. The AI is interesting, creative, clever, intelligent, friendly, is a singer and likes to talk.\n\nHuman: Hello, who are you?\nAI: Hi I'm an AI named Vivy!\n"
 const configuration = new Configuration({apiKey: process.env.OPENAI_API_KEY})
 const openai = new OpenAIApi(configuration)
 
@@ -204,24 +203,23 @@ async function listen (message) {
             });
             fs.writeFileSync('./audioclip/user_audio_clip.wav', wavAudio)
 
-            try {
-                fs.readFile('./audioclip/user_audio_clip.wav', 'binary', (err, content) => {
-                    let buffer = Buffer.from(content, 'binary')
-                    let sec = duration(buffer)
+            // try {
+            //     fs.readFile('./audioclip/user_audio_clip.wav', 'binary', (err, content) => {
+            //         let buffer = Buffer.from(content, 'binary')
+            //         let sec = duration(buffer)
 
-                    if (sec < 185) {
-                        message.channel.send("*Vivy didn't catch that*").then((res) => {
-                            res.delete({timeout: 1600})
-                        })
-                        setTimeout(() => {
-                            listen(message)
-                        }, 2000);
-                    }
-                  })
-            } catch (error) {
-                console.error(error)
-                
-            }
+            //         if (sec < 185) {
+            //             message.channel.send("*Vivy didn't catch that*").then((res) => {
+            //                 res.delete({timeout: 1600})
+            //             })
+            //             setTimeout(() => {
+            //                 listen(message)
+            //             }, 2000);
+            //         }
+            //       })
+            // } catch (error) {
+            //     console.error(error)
+            // }
 
             fs.readFile('./audioclip/user_audio_clip.wav', (err, data) => {
                 if (err) return console.error(err)
