@@ -1,0 +1,5 @@
+TOKEN = <Your Discord Bot Token>
+CLIENTID = <Your Discord Client ID>
+GUILDID = <Your Discord Guild/Server ID >
+ASSEMBLYAPIKEY = <Your AssemblyAI Ai API Key>
+OPENAI_API_KEY = <Your OPENAI_API_KEY>
