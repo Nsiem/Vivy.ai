@@ -65,13 +65,16 @@ GUILDID = <Your Discord Guild/Server ID >
 ASSEMBLYAPIKEY = <Your AssemblyAI Ai API Key>
 OPENAI_API_KEY = <Your OPENAI_API_KEY>
 ```
-
+Make sure to setup Google Cloud text-to-speech 
+```
+https://cloud.google.com/text-to-speech/docs/libraries
+```
 Run project 
 ```
 node .
 ```
 
-Invite the bot the server and 
+Invite the bot to a server and type ``!start`` in a text channel to begin the conversation
 ## Demo 
 https://youtu.be/h-NpXro3NgM
 
