@@ -21,7 +21,6 @@ async function quickStart(text) {
   // Write the binary audio content to a local file
   const writeFile = util.promisify(fs.writeFile);
   await writeFile('output.mp3', response.audioContent, 'binary');
-  console.log('Audio content written to file: output.mp3');
 }
 
 module.exports = {quickStart}

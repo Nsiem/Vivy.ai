@@ -1,6 +1,7 @@
 const { Client, Intents, BaseGuild, BaseGuildVoiceChannel } = require('discord.js');
 const {AudioPlayerStatus, joinVoiceChannel, createAudioPlayer, createAudioResource} = require('@discordjs/voice')
 const { Configuration, OpenAIApi } = require("openai");
+const getMP3Duration = require('get-mp3-duration')
 const myIntents = new Intents();
 myIntents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES );
 const client = new Client({ intents: myIntents });
@@ -57,7 +58,7 @@ function assemblyAIfunc(uploadID, msg) {
         audio_url: `${uploadID}`
     })
     .then((res) => {
-        GETloop(res.data["id"], msg)
+        gettranscript(res.data["id"], msg)
     }) 
     .catch((err) => console.error(err));
 }
@@ -68,45 +69,39 @@ function gettranscript(transcriptID, msg) {
     .get(`/transcript/${transcriptID}`)
     .then((res) => {
         if(res.data["text"] != null) {
-            if(flag != false) {
-                console.log(`${res.data["text"]}`)
-                msg.channel.send(`Human: ${res.data["text"]}`)
-                updateChatlog("human", res.data["text"])
-                Vivy(msg)
+            console.log(`${res.data["text"]}`)
+            if(res.data["text"] == "good bye." || res.data["text"] == "Good bye." || res.data["text"] == "goodbye." || res.data["text"] == "Goodbye.") {
+                msg.channel.send(`Vivy: It was nice to talk to you, goodbye!`)
+                VivySpeak(msg, true)
+                flag = false
+                return
             }
-            flag = false
+            msg.channel.send(`Human: ${res.data["text"]}`)
+            updateChatlog("human", res.data["text"])
+            Vivy(msg)
+        } else {
+            setTimeout(() => {
+                console.log("Retrying GET")
+                gettranscript(transcriptID, msg)
+            }, 2000)
         }
-        
 
+        
     })
     .catch((err) => console.error(err));
 }
 
-//loop to continue getting transcript until found
-function GETloop(transcriptID, msg) {
-    gettranscript(transcriptID, msg)
-    console.log(flag)
-    if (flag == false) {
-        setTimeout(() => {
-            flag = true
-        }, 500)
-        return
-    } else {
-        setTimeout(() => {
-        GETloop(transcriptID, msg)
-    }, 2000)
-    }
-}
-
+//updates chatlog which is the prompt for vivy
 function updateChatlog(src, text) {
     if (src == "human") {
-        chatlog += 'Human: ' + text + '\n'
+        chatlog += "Human: " + text + '\n'
     } else if (src == "ai") {
-        chatlog += 'AI: ' + text + '\n'
+        chatlog += text.replace(/\n/g, '') + '\n'
     }
-    console.log(text)
+    console.log(chatlog)
 }
 
+//sends prompt to vivy and receives her response
 function Vivy(msg) {
     openai.createCompletion("text-curie-001", {
         prompt: chatlog,
@@ -119,19 +114,42 @@ function Vivy(msg) {
       }).then((response) => {
             tts.quickStart(response.data["choices"][0]["text"].substring(3))
             updateChatlog("ai", response.data["choices"][0]["text"])
-            msg.channel.send(response.data["choices"][0]["text"])
+            msg.channel.send("Vivy: " + response.data["choices"][0]["text"].substring(3))
             setTimeout(() => {
-                VivySpeak(msg)
+                VivySpeak(msg, false)
             }, 1500)
             
       })
 }
 
-async function VivySpeak(msg) {
+//gives Vivy a voice!
+async function VivySpeak(msg, goodbye) {
+
     const voiceChannel = msg.member.voice.channel
 
     const connection = await voiceChannel.join();
+
+    if(goodbye) {
+        connection.play('goodbye.mp3')
+        setTimeout(() => {
+            msg.member.voice.channel.leave()
+        }, 3000)
+        
+        return
+    }
+
 	connection.play('output.mp3');
+
+    const audioBuffer = fs.readFileSync('./output.mp3')
+    const duration = getMP3Duration(audioBuffer) + 1000
+     
+    console.log(duration)
+
+    setTimeout(() => {
+        listen(msg)
+    }, duration)
+
+    
 }
 
 
@@ -140,10 +158,10 @@ async function VivySpeak(msg) {
 //base discord messaging prompt, starts entire code
 client.on('message', async message => {
     if (message.content == "!start") {
-        listen(message)
-        return
-    } else if (message.content == "!test") {
-        VivySpeak(message)
+        setTimeout(() => {
+            listen(message)
+        }, 1000)
+        
         return
     }
 })
@@ -153,17 +171,16 @@ client.on('message', async message => {
 async function listen (message) {
     var connection =  await message.member.voice.channel.join();
     if(message.guild.voice.channel){
-
+        message.channel.send("(Your turn to speak)");
 
         var user = message.member;
         
-        message.channel.send("I'm listening...");
-
         const audioConnection = connection.receiver.createStream(user, { mode: 'pcm', end: 'silence' });
         const audioWriter = audioConnection.pipe(fs.createWriteStream('./audioclip/user_audio_clip.pcm'));
     
         audioWriter.on("finish", () => {
             console.log("done")
+            message.channel.send("Vivy is thinking...")
             var pcmAudio = fs.readFileSync('./audioclip/user_audio_clip.pcm');
             var wavAudio = wavConverter.encodeWav(pcmAudio, {
                 numChannels: 1,
