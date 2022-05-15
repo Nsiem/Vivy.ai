@@ -15,16 +15,20 @@ We've always loved AI, and GPT-3 was an AI algorithm we've wanted to utilize for
 - Vivy then verbally responds to anything the user says.
 - The conversation is transcribed in a text-channel so you will never forgot!
 ## How we built it
+- First we set up a basic discord bot to retreive audio that converts 
+- We then send the wavfile data to Assemblyai and then wait for it to be processed, retreiveing the speech-to-text
+- Then we sent the text to gpt3, including our prompts, to generate a contextual response
+- Finally we used utilized Google's text to speech to generate along with GPT3 repspone to create an MP3 file to play back to the user on discord .
+
 
 ## Challenges we ran into'
 - Transcription time 
 - Figuring out how to use all the api's
-- Incorparating Vivi traits for GPT3 to learn from 
+- Incorparating Vivi's traits for GPT3 to learn from 
 
 ## Accomplishments that we're proud of
-- We able to get Vivy to save user audio as a mp3 and then send it to AssemblyAI to get the text
-- The text was then sent to GPT3 to generate a response 
-- The response then needed to be convereted into audio, so we used Google's text-to-speech api
+- Saving audio from discord call
+
 
 
 ## What we learned
@@ -66,7 +70,8 @@ node .
 
 Invite the bot the server and 
 ## Demo 
-Image / Video Here
+https://youtu.be/h-NpXro3NgM
+
 ## Bonus
 
 ![Alt Text](https://c.tenor.com/IVVJbs0N7DcAAAAC/vivy-dance.gif)
