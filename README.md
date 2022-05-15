@@ -28,11 +28,14 @@ We've always loved AI, and GPT-3 was an AI algorithm we've wanted to utilize for
 
 ## Accomplishments that we're proud of
 - Saving audio from discord call
+- Generating an AI response to questions
+- Creating a bot that can communicate via voice call
+- Transcribing discord call 
 
 
 
 ## What we learned
-- Project implementation/development skills
+- Project implementation/development skill
 - AssemblyAI, GPT3, Discord.js, Google Cloud 
 ## What's next for Vivy.ai
 After creating Vivy.ai we realize the potential it has for voice commands in discord, so a potential future would be to make a voice assistant discord bot to complete actions on the server. We also want to allow others to use Vivy.ai, so hosting it on the cloud will allow hundreds to talk with her.
