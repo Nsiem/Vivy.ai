@@ -1,6 +1,7 @@
 const { Client, Intents, BaseGuild, BaseGuildVoiceChannel } = require('discord.js');
 const {AudioPlayerStatus, joinVoiceChannel, createAudioPlayer, createAudioResource} = require('@discordjs/voice')
 const { Configuration, OpenAIApi } = require("openai");
+const duration = require("wav-audio-length").default;
 const getMP3Duration = require('get-mp3-duration')
 const myIntents = new Intents();
 myIntents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES );
@@ -12,7 +13,7 @@ dotenv.config()
 const tts = require('./tts.js')
 const axios = require('axios')
 const fs = require('fs')
-var retryCount = 12
+var retryCount = 50
 var chatlog = "The following is a conversation with an AI named Vivy. The AI is interesting, creative, clever, intelligent, friendly, and MOST IMPORTANTLY loves to sing for people.\n\nHuman: Hello, who are you?\nAI: Hi I'm an AI named Vivy!\n"
 
 const configuration = new Configuration({apiKey: process.env.OPENAI_API_KEY})
@@ -78,12 +79,12 @@ function gettranscript(transcriptID, msg) {
             msg.channel.send("```" + `arm\n${msg.author.username}: ` + `${res.data["text"]}` + "```")
             updateChatlog("human", res.data["text"])
             Vivy(msg)
-            retryCount = 10
+            retryCount = 50
         } else {
             if(retryCount <= 0) {
                 msg.channel.send("*Vivy didn't catch that*")
                 setTimeout(() => {
-                    retryCount = 10
+                    retryCount = 50
                     listen(msg)
                 }, 1500)
             } else {
@@ -91,7 +92,7 @@ function gettranscript(transcriptID, msg) {
                 console.log("Retrying GET")
                 retryCount -= 1
                 gettranscript(transcriptID, msg)
-            }, 2000) 
+            }, 500) 
             }
             
         }
@@ -104,7 +105,7 @@ function gettranscript(transcriptID, msg) {
 //updates chatlog which is the prompt for vivy
 function updateChatlog(src, text) {
     if (src == "human") {
-        chatlog += "Human: " + text + '\n'
+        chatlog += "Human: " + text + '\n' + "AI: "
     } else if (src == "ai") {
         chatlog += text.replace(/\n/g, '') + '\n'
     }
@@ -119,11 +120,11 @@ function Vivy(msg) {
         top_p: 1,
         frequency_penalty: 0,
         presence_penalty: 0.6,
-        stop: [" Human:", " AI:"],
+        stop: ["AI: "],
       }).then((response) => {
-            tts.quickStart(response.data["choices"][0]["text"].substring(3))
+            tts.quickStart(response.data["choices"][0]["text"])
             updateChatlog("ai", response.data["choices"][0]["text"])
-            msg.channel.send("```ini\n[Vivy] " + response.data["choices"][0]["text"].substring(3) + "```")
+            msg.channel.send("```ini\n[Vivy] " + response.data["choices"][0]["text"].substring(1) + "```")
             setTimeout(() => {
                 VivySpeak(msg, false)
             }, 1500)
@@ -168,9 +169,12 @@ async function VivySpeak(msg, goodbye) {
 //base discord messaging prompt, starts entire code
 client.on('message', async message => {
     if (message.content == "!start") {
+        message.channel.send("**Get ready to speak!**").then((res) => {
+            res.delete({timeout: 1900})
+        })
         setTimeout(() => {
             listen(message)
-        }, 1000)
+        }, 2000)
         
         return
     }
@@ -199,6 +203,26 @@ async function listen (message) {
                 byteRate: 800
             });
             fs.writeFileSync('./audioclip/user_audio_clip.wav', wavAudio)
+
+            try {
+                fs.readFile('./audioclip/user_audio_clip.wav', 'binary', (err, content) => {
+                    let buffer = Buffer.from(content, 'binary')
+                    let sec = duration(buffer)
+
+                    if (sec < 185) {
+                        message.channel.send("*Vivy didn't catch that*").then((res) => {
+                            res.delete({timeout: 1600})
+                        })
+                        setTimeout(() => {
+                            listen(message)
+                        }, 2000);
+                    }
+                  })
+            } catch (error) {
+                console.error(error)
+                
+            }
+
             fs.readFile('./audioclip/user_audio_clip.wav', (err, data) => {
                 if (err) return console.error(err)
                 uploadfunc(data, message)

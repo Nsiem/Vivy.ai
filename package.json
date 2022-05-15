@@ -25,6 +25,7 @@
     "get-mp3-duration": "^1.0.0",
     "libsodium-wrappers": "^0.7.10",
     "openai": "^2.0.5",
+    "wav-audio-length": "^0.1.1",
     "wav-converter": "^1.0.0"
   }
 }
