@@ -1,11 +1,28 @@
 
-![Logo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/th5xamgrr6se0x5ro4g6.png)
+![Logo](https://github.com/Nsiem/HawkHacksProject/blob/master/assets/vivyailogo.png)
 
-# Vivy.ai
-Vivy 
+Vivy is a smart, creative, clever AI that wants to talk with you!
+ 
 
-![Alt Text](https://c.tenor.com/IVVJbs0N7DcAAAAC/vivy-dance.gif)
 
+## Inspiration
+
+## What it does
+- Vivy is an AI that will have a conversation with you on discord
+- Vivy will join a voice channel and then listen to the user
+- Vivy then verbally responds to anything the user says whether it be answers to lifes hardest questions, or 
+- The conversation is transcribed in a text-channel so you will never forgot!
+## How we built it
+
+## Challenges we ran into'
+- Transcription time:
+- 
+
+## Accomplishments that we're proud of
+
+## What we learned
+
+## What's next for Vivy.ai
 
 
 
@@ -37,5 +54,6 @@ OPENAI_API_KEY = <Your OPENAI_API_KEY>
 ## Demo 
 Image / Video Here
 ## Acknowledgements
+ - [Tenor (GIF and Images)](https://tenor.com/)
+![Alt Text](https://c.tenor.com/IVVJbs0N7DcAAAAC/vivy-dance.gif)
 
- - [Tenor (Every Gifs) ](https://tenor.com/)
