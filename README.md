@@ -4,6 +4,8 @@
 # Vivy.ai
 Vivy 
 
+![Alt Text](https://c.tenor.com/IVVJbs0N7DcAAAAC/vivy-dance.gif)
+
 
 
 
