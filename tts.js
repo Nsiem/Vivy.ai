@@ -11,9 +11,9 @@ async function quickStart(text) {
   const request = {
     input: {text: text},
     // Select the language and SSML voice gender (optional)
-    voice: {languageCode: 'en-US', ssmlGender: 'FEMALE', name: 'en-US-Wavenet-H'},
+    voice: {languageCode: 'en-US', ssmlGender: 'FEMALE', name: 'en-US-Wavenet-F'},
     // select the type of audio encoding
-    audioConfig: {audioEncoding: 'MP3'},
+    audioConfig: {audioEncoding: 'MP3', speakingRate: 1.15, pitch: 1.2},
   };
 
   // Performs the text-to-speech request
