@@ -85,5 +85,5 @@ https://youtu.be/h-NpXro3NgM
 
 ![Alt Text](https://c.tenor.com/IVVJbs0N7DcAAAAC/vivy-dance.gif)
 
-Credits to the anime Vivy: Fluorite Eye's Song by Wit Studio and created by Tappei Nagatsuki and Eiji Umehara for the inspiration of the video
+Credits to the anime Vivy: Fluorite Eye's Song by Wit Studio and created by Tappei Nagatsuki and Eiji Umehara for the inspiration of Vivy.
 
